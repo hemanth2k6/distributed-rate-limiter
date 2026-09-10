@@ -8,7 +8,7 @@ import (
 )
 
 // Middleware wraps an http.Handler with rate limiting logic based on IP address.
-func Middleware(ipLimiter *IPLimiter, next http.Handler) http.Handler {
+func Middleware(limiter Limiter, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Extract IP address from RemoteAddr
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -24,8 +24,7 @@ func Middleware(ipLimiter *IPLimiter, next http.Handler) http.Handler {
 			ip = strings.TrimSpace(ips[0])
 		}
 
-		limiter := ipLimiter.GetLimiter(ip)
-		if !limiter.Allow() {
+		if !limiter.Allow(ip) {
 			log.Printf("[RATE LIMIT] IP %s rejected: Rate limit exceeded", ip)
 			http.Error(w, "429 Too Many Requests", http.StatusTooManyRequests)
 			return
