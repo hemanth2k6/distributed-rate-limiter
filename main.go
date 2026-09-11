@@ -37,15 +37,25 @@ func main() {
 	refillRate := 10.0 / 60.0
 
 	// Configure Redis address from environment
+	redisURL := os.Getenv("REDIS_URL")
 	redisAddr := os.Getenv("REDIS_ADDR")
-	if redisAddr == "" {
-		redisAddr = "localhost:6379"
-	}
+	
+	var redisClient *redis.Client
 
-	// Initialize Redis client
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-	})
+	if redisURL != "" {
+		opt, err := redis.ParseURL(redisURL)
+		if err != nil {
+			log.Fatalf("Failed to parse REDIS_URL: %v", err)
+		}
+		redisClient = redis.NewClient(opt)
+	} else {
+		if redisAddr == "" {
+			redisAddr = "localhost:6379"
+		}
+		redisClient = redis.NewClient(&redis.Options{
+			Addr: redisAddr,
+		})
+	}
 
 	// Check Redis connection
 	if err := redisClient.Ping(context.Background()).Err(); err != nil {

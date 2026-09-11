@@ -10,11 +10,11 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
-      - key: REDIS_ADDR
+      - key: REDIS_URL
         fromService:
           type: redis
           name: rate-limiter-redis
-          property: hostport
+          property: connectionString
       - key: INSTANCE_ID
         value: Node-1
 
@@ -24,11 +24,11 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
-      - key: REDIS_ADDR
+      - key: REDIS_URL
         fromService:
           type: redis
           name: rate-limiter-redis
-          property: hostport
+          property: connectionString
       - key: INSTANCE_ID
         value: Node-2
 
@@ -38,11 +38,11 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
-      - key: REDIS_ADDR
+      - key: REDIS_URL
         fromService:
           type: redis
           name: rate-limiter-redis
-          property: hostport
+          property: connectionString
       - key: INSTANCE_ID
         value: Node-3
 
