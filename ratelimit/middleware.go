@@ -1,9 +1,11 @@
 package ratelimit
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -24,7 +26,17 @@ func Middleware(limiter Limiter, next http.Handler) http.Handler {
 			ip = strings.TrimSpace(ips[0])
 		}
 
-		if !limiter.Allow(ip) {
+		result := limiter.Allow(ip)
+
+		// Set rate limit headers
+		w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%.0f", result.Limit))
+		w.Header().Set("X-RateLimit-Remaining", fmt.Sprintf("%.0f", result.Remaining))
+		w.Header().Set("X-RateLimit-Reset", strconv.FormatInt(result.Reset, 10))
+
+		if result.Error != nil {
+			// Log critical error but fail-open
+			log.Printf("[CRITICAL] Rate limiter error for IP %s: %v. Falling back to allow.", ip, result.Error)
+		} else if !result.Allowed {
 			log.Printf("[RATE LIMIT] IP %s rejected: Rate limit exceeded", ip)
 			http.Error(w, "429 Too Many Requests", http.StatusTooManyRequests)
 			return

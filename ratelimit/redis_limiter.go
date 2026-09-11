@@ -41,7 +41,12 @@ redis.call('HMSET', rate_limit_key, 'tokens', tokens, 'last_refill', now)
 local ttl = math.ceil(capacity / refill_rate) * 2
 redis.call('EXPIRE', rate_limit_key, ttl)
 
-return allowed
+local reset_time = math.ceil(now + ((capacity - tokens) / refill_rate))
+if tokens == capacity then
+    reset_time = math.ceil(now)
+end
+
+return {allowed, math.floor(tokens), reset_time}
 `
 
 // RedisLimiter implements the Limiter interface using Redis.
@@ -63,20 +68,40 @@ func NewRedisLimiter(client *redis.Client, capacity float64, refillRate float64)
 }
 
 // Allow evaluates if a request from the given IP is allowed, executing the Lua script in Redis.
-func (rl *RedisLimiter) Allow(ip string) bool {
-	ctx := context.Background()
+func (rl *RedisLimiter) Allow(ip string) Result {
+	// 200ms timeout for Redis operations to ensure we don't hang the API
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
 	key := fmt.Sprintf("rate_limit:ip:%s", ip)
 	
 	// Use Unix time in seconds as a float to allow fractional seconds in math
 	now := float64(time.Now().UnixNano()) / 1e9
 
 	// Run the script
-	result, err := rl.script.Run(ctx, rl.client, []string{key}, rl.capacity, rl.refillRate, now).Int()
+	rawResult, err := rl.script.Run(ctx, rl.client, []string{key}, rl.capacity, rl.refillRate, now).Result()
 	if err != nil {
-		log.Printf("Redis rate limiter error for IP %s: %v", ip, err)
-		// Fallback policy: allow the request if Redis is down, or we could block it. Let's allow.
-		return true
+		log.Printf("[CRITICAL] Redis rate limiter failed for IP %s: %v", ip, err)
+		// Fail-open policy: Allow traffic if Redis is down
+		return Result{
+			Allowed:   true,
+			Limit:     rl.capacity,
+			Remaining: rl.capacity, // Assume full capacity on failure
+			Reset:     time.Now().Unix(),
+			Error:     err,
+		}
 	}
 
-	return result == 1
+	resArray := rawResult.([]interface{})
+	allowed := resArray[0].(int64) == 1
+	remaining := float64(resArray[1].(int64))
+	reset := resArray[2].(int64)
+
+	return Result{
+		Allowed:   allowed,
+		Limit:     rl.capacity,
+		Remaining: remaining,
+		Reset:     reset,
+		Error:     nil,
+	}
 }
