@@ -29,13 +29,9 @@ services:
       - redis
 
   nginx:
-    image: nginx:alpine
-    volumes:
-      - ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    environment:
-      - API1_HOST=api1
-      - API2_HOST=api2
-      - API3_HOST=api3
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     ports:
       - "8080:80"
     depends_on:

@@ -10,6 +10,8 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
+      - key: PORT
+        value: "8080"
       - key: REDIS_URL
         fromService:
           type: redis
@@ -24,6 +26,8 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
+      - key: PORT
+        value: "8080"
       - key: REDIS_URL
         fromService:
           type: redis
@@ -38,6 +42,8 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
+      - key: PORT
+        value: "8080"
       - key: REDIS_URL
         fromService:
           type: redis
@@ -51,19 +57,3 @@ services:
     env: docker
     dockerfilePath: Dockerfile.nginx
     plan: free
-    envVars:
-      - key: API1_HOST
-        fromService:
-          type: pserv
-          name: api1
-          property: host
-      - key: API2_HOST
-        fromService:
-          type: pserv
-          name: api2
-          property: host
-      - key: API3_HOST
-        fromService:
-          type: pserv
-          name: api3
-          property: host

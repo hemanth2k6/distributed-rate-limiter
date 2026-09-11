@@ -1,4 +1,11 @@
 FROM nginx:alpine
-RUN rm /etc/nginx/conf.d/default.conf
-COPY default.conf.template /etc/nginx/templates/default.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Add a script that sleeps for 15 seconds before NGINX starts.
+# This ensures that the Render/Docker internal DNS has fully propagated 
+# the hostnames (api1, api2, api3) before NGINX tries to resolve them,
+# preventing a crash on startup.
+RUN printf '#!/bin/sh\necho "Waiting for internal DNS..."\nsleep 15\necho "DNS wait complete."\n' > /docker-entrypoint.d/00-wait-for-dns.sh \
+    && chmod +x /docker-entrypoint.d/00-wait-for-dns.sh
+
 EXPOSE 80
