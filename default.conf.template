@@ -1,11 +1,10 @@
 upstream api_servers {
-    server api1:8080;
-    server api2:8080;
-    server api3:8080;
+    server ${API1_IP}:8080;
+    server ${API2_IP}:8080;
+    server ${API3_IP}:8080;
 }
 
 server {
-    # Dynamically bind to Render's assigned port via envsubst
     listen ${PORT};
 
     location / {

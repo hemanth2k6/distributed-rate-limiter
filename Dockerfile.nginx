@@ -3,16 +3,12 @@ FROM nginx:alpine
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Use template so envsubst can inject Render's $PORT
+# Use template for IP injection
 COPY default.conf.template /etc/nginx/templates/default.conf.template
+COPY resolve-ips.sh /docker-entrypoint.d/01-resolve-ips.sh
+RUN chmod +x /docker-entrypoint.d/01-resolve-ips.sh
 
-# Robust DNS wait script using nslookup loop
-RUN printf '#!/bin/sh\n\
-echo "Waiting for API nodes..."\n\
-for host in api1 api2 api3; do\n\
-  while ! nslookup $host > /dev/null 2>&1; do\n\
-    echo "Waiting for $host to resolve..."\n\
-    sleep 2\n\
-  done\n\
-done\n\
-echo "DNS ready. Starting NGINX."\n' > /docker-entrypoint.d/00-wait-for-dns.sh && chmod +x /docker-entrypoint.d/00-wait-for-dns.sh
+# Remove the default nginx envsubst script since we handle it in our custom script
+RUN rm -f /docker-entrypoint.d/20-envsubst-on-templates.sh
+
+EXPOSE 80
