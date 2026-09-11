@@ -51,3 +51,19 @@ services:
     env: docker
     dockerfilePath: Dockerfile.nginx
     plan: free
+    envVars:
+      - key: API1_ADDR
+        fromService:
+          type: pserv
+          name: api1
+          property: hostport
+      - key: API2_ADDR
+        fromService:
+          type: pserv
+          name: api2
+          property: hostport
+      - key: API3_ADDR
+        fromService:
+          type: pserv
+          name: api3
+          property: hostport

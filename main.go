@@ -76,7 +76,11 @@ func main() {
 	if instanceID == "" {
 		instanceID = "local"
 	}
-	log.Printf("Starting server on :8080 (Instance: %s)...", instanceID)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("Starting server on :%s (Instance: %s)...", port, instanceID)
 	log.Println("Rate limiter active: 10 requests / minute per IP")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
