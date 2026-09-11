@@ -1,0 +1,53 @@
+services:
+  - type: redis
+    name: rate-limiter-redis
+    ipAllowList: []
+    plan: free
+
+  - type: pserv
+    name: api1
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: REDIS_ADDR
+        fromService:
+          type: redis
+          name: rate-limiter-redis
+          property: hostport
+      - key: INSTANCE_ID
+        value: Node-1
+
+  - type: pserv
+    name: api2
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: REDIS_ADDR
+        fromService:
+          type: redis
+          name: rate-limiter-redis
+          property: hostport
+      - key: INSTANCE_ID
+        value: Node-2
+
+  - type: pserv
+    name: api3
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: REDIS_ADDR
+        fromService:
+          type: redis
+          name: rate-limiter-redis
+          property: hostport
+      - key: INSTANCE_ID
+        value: Node-3
+
+  - type: web
+    name: rate-limiter-nginx
+    env: docker
+    dockerfilePath: Dockerfile.nginx
+    plan: free
