@@ -33,9 +33,9 @@ services:
     volumes:
       - ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
     environment:
-      - API1_ADDR=api1:8080
-      - API2_ADDR=api2:8080
-      - API3_ADDR=api3:8080
+      - API1_HOST=api1
+      - API2_HOST=api2
+      - API3_HOST=api3
     ports:
       - "8080:80"
     depends_on:

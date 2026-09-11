@@ -1,7 +1,7 @@
 upstream api_servers {
-    server ${API1_ADDR};
-    server ${API2_ADDR};
-    server ${API3_ADDR};
+    server ${API1_HOST}:8080;
+    server ${API2_HOST}:8080;
+    server ${API3_HOST}:8080;
 }
 
 server {

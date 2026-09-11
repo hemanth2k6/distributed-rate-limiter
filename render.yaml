@@ -52,18 +52,18 @@ services:
     dockerfilePath: Dockerfile.nginx
     plan: free
     envVars:
-      - key: API1_ADDR
+      - key: API1_HOST
         fromService:
           type: pserv
           name: api1
-          property: hostport
-      - key: API2_ADDR
+          property: host
+      - key: API2_HOST
         fromService:
           type: pserv
           name: api2
-          property: hostport
-      - key: API3_ADDR
+          property: host
+      - key: API3_HOST
         fromService:
           type: pserv
           name: api3
-          property: hostport
+          property: host
