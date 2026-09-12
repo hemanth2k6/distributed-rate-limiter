@@ -13,12 +13,10 @@ The cluster is actively deployed on Render! You can test it live here:
 For a deep dive into the architecture, fail-open resiliency, and how race conditions are solved, see the [DESIGN.md](DESIGN.md) document.
 
 ## 📸 Screenshots
-*(Placeholder: Insert a screenshot here showing the k6 load test results perfectly blocking the 13,000 requests)*
-<!-- To add a screenshot, upload your image to the repo and replace the link below: -->
-<!-- ![k6 Load Test Results](path/to/k6-screenshot.png) -->
 
-*(Placeholder: Insert a screenshot of the Render Dashboard showing all 4 services running)*
-<!-- ![Render Dashboard](path/to/render-screenshot.png) -->
+![k6 Load Test Results](k6-screenshot.png)
+
+![Render Dashboard](render-screenshot.png)
 
 ## 🏗️ Architecture
 1. **Go API**: A lightweight Go API server containing the rate limiting middleware.
