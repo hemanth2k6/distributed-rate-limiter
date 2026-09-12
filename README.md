@@ -4,11 +4,28 @@ A production-grade, distributed rate limiter built with Go, Redis, and NGINX.
 
 This project demonstrates how to enforce strict rate limits (e.g., 10 requests per minute per IP) across multiple API instances using a central Redis store. It utilizes the **Token Bucket** algorithm and guarantees absolute atomicity using Redis Lua scripting.
 
+## 🌐 Live Demo
+The cluster is actively deployed on Render! You can test it live here:
+**[https://rate-limiter-nginx.onrender.com/data](https://rate-limiter-nginx.onrender.com/data)**
+*(Note: Because it runs on Render's free tier, the first request may take up to 60 seconds to wake up the cluster. Subsequent requests will be instant!)*
+
+## 📖 System Design
+For a deep dive into the architecture, fail-open resiliency, and how race conditions are solved, see the [DESIGN.md](DESIGN.md) document.
+
+## 📸 Screenshots
+*(Placeholder: Insert a screenshot here showing the k6 load test results perfectly blocking the 13,000 requests)*
+<!-- To add a screenshot, upload your image to the repo and replace the link below: -->
+<!-- ![k6 Load Test Results](path/to/k6-screenshot.png) -->
+
+*(Placeholder: Insert a screenshot of the Render Dashboard showing all 4 services running)*
+<!-- ![Render Dashboard](path/to/render-screenshot.png) -->
+
 ## 🏗️ Architecture
 1. **Go API**: A lightweight Go API server containing the rate limiting middleware.
 2. **Redis**: Acts as the centralized state store for all token buckets.
 3. **Lua Scripts**: The mathematical logic for calculating tokens and elapsed time is executed entirely inside Redis via an atomic Lua script, eliminating race conditions across multiple API nodes.
 4. **NGINX**: Acts as a round-robin load balancer distributing traffic among 3 isolated API containers.
+5. **CI/CD**: Fully automated Docker builds and deployments via GitHub Actions (`.github/workflows/deploy.yml`).
 
 ## ✨ Features
 - **Strict Atomicity**: No race conditions. A user cannot bypass the limit by sending concurrent requests.
@@ -18,7 +35,7 @@ This project demonstrates how to enforce strict rate limits (e.g., 10 requests p
 
 ---
 
-## 🚀 How to Run the Project
+## 🚀 How to Run the Project Locally
 
 You don't need Go installed locally to run this! Everything is containerized.
 
@@ -32,7 +49,7 @@ docker compose up -d --build
 ```
 
 ### 2. Verify it Works
-You can hit the API manually using `curl`:
+You can hit the local API manually using `curl`:
 ```bash
 # Check the response headers for X-RateLimit-*
 curl -I http://localhost:8080/data
